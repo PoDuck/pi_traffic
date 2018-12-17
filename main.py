@@ -20,16 +20,17 @@ class Light(object):
     start_time = None
     _delay = 0
 
-    def __init__(self, sequence):
+    def __init__(self, lights, sequence):
         """
         Initialize light
+        :param lights: dictionary of {color: GPIO_pin, ...}
         :param sequence: tuple of (color, delay, duration)
         """
         self._color = sequence[0]
         self._delay = sequence[1]
         self._duration = sequence[2]
         self._power = False
-        self.pin = LIGHTS[self._color]
+        self.pin = lights[self._color]
         GPIO.setup(self.pin, GPIO.OUT)
         self.start_time = time()
 
@@ -104,11 +105,20 @@ class TrafficSignal(object):
     previous_switch = None
     lights_on = False
 
-    def __init__(self):
-        for light in SEQUENCE:
-            self.lights.append(Light(light))
+    def __init__(self, pins, sensors, sequence):
+        """
+        TrafficSignal initialization
+        :param pins: Dictionary containing values in {color: GPIO_pin} format.
+        :param sensors: Dictionary containing values for 'switch' and 'music' GPIO pins
+        :param sequence: List of tuples for each light in the form [(light, delay, duration), ...].
+        """
+        self.sensors = sensors
+        self.sequence = sequence
+        self.pins = pins
+        for light in sequence:
+            self.lights.append(Light(pins, light))
             self.powered.append(False)
-        if GPIO.input(SENSORS['switch']):
+        if GPIO.input(sensors['switch']):
             self.switch_on = True
             self.mode = "Music"
         else:
@@ -127,7 +137,7 @@ class TrafficSignal(object):
         :param channel: GPIO Channel
         :return: None
         """
-        if GPIO.input(SENSORS['switch']):
+        if GPIO.input(self.sensors['switch']):
             self.switch_on = True
             self.light_event.set()
             self.mode = "Music"
@@ -150,7 +160,7 @@ class TrafficSignal(object):
         :return: None
         """
         # If music sensor pulled high turn off lights
-        if GPIO.input(SENSORS['music']):
+        if GPIO.input(self.sensors['music']):
             self.music_triggered = False
         else:  # Music sensor pulled low turn on lights
             self.music_triggered = True
@@ -221,7 +231,7 @@ def main():
     GPIO.setup(SENSORS['switch'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     # initialize lights
-    lights = TrafficSignal()
+    lights = TrafficSignal(LIGHTS, SENSORS, SEQUENCE)
 
     # Setup callback for switch.
     GPIO.add_event_detect(SENSORS['switch'], GPIO.BOTH, callback=lights.switch_detect)
