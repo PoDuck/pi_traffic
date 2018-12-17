@@ -102,6 +102,7 @@ class TrafficSignal(object):
     music_triggered = False
     previous_music = None
     previous_switch = None
+    lights_on = False
 
     def __init__(self):
         for light in SEQUENCE:
@@ -114,7 +115,6 @@ class TrafficSignal(object):
             self.switch_on = False
             self.mode = "Traffic"
         self.all_lights_off()
-        self.all_lights_off()
         for light in self.lights:
             light.on()
             sleep(.5)
@@ -122,6 +122,11 @@ class TrafficSignal(object):
         sleep(1)
 
     def switch_detect(self, channel):
+        """
+        Callback for mode switch
+        :param channel: GPIO Channel
+        :return: None
+        """
         if GPIO.input(SENSORS['switch']):
             self.switch_on = True
             self.light_event.set()
@@ -138,65 +143,74 @@ class TrafficSignal(object):
                 print("Falling edge detected.")
                 print("Lights initialized")
 
+    def music_detect(self, channel):
+        """
+        Callback for music sensor switch.
+        :param channel: GPIO Channel
+        :return: None
+        """
+        # If music sensor pulled high turn off lights
+        if GPIO.input(SENSORS['music']):
+            self.music_triggered = False
+        else:  # Music sensor pulled low turn on lights
+            self.music_triggered = True
+
     def all_lights_off(self):
+        """
+        Turn all lights off
+        :return: None
+        """
         for light in self.lights:
             light.off()
+        self.lights_on = False
         if DEBUG:
             print("All lights off")
 
     def all_lights_on(self):
+        """
+        Turn all lights on
+        :return: None
+        """
         for light in self.lights:
             light.on()
+        self.lights_on = True
         if DEBUG:
             print("all lights on")
 
-    def cycle(self):
-        while True:
-            if self.switch_on:
-                if not self.previous_switch:
-                    self.all_lights_off()
-                    self.previous_switch = True
-
-                current_music = GPIO.input(SENSORS['music'])
-
-                # If the current music sensor is different than the last sensor, trigger work.
-                if current_music != self.previous_music:
-                    self.music_triggered = True
-                    self.previous_music = current_music
-
-                    # If sound is detected turn lights on
-                    if current_music == GPIO.LOW:
-                        self.all_lights_on()
-                        self.music_triggered = False
-
-                    # If no sound detected, turn lights off
-                    elif self.music_triggered and current_music == GPIO.HIGH:
-                        self.all_lights_off()
-                        self.music_triggered = False
-                    else:
-                        # Do stuff needed between beats, if any
-                        pass
-            else:
-                if self.previous_switch:
-                    self.initialize()
-                    self.previous_switch = False
-                if not self.light_event.is_set():
-                    i = 0
-                    if True not in self.powered:
-                        self.initialize()
-                    else:
-                        self.light_event.wait(1)
-                    for light in self.lights:
-                        light.cycle()
-                        self.powered[i] = light.status()
-                        i += 1
-                else:
-                    self.all_lights_off()
-
     def initialize(self):
+        """
+        Resets all light timings to now.
+        :return: None
+        """
         start_time = time()
         for light in self.lights:
             light.start_time = start_time
+
+    def cycle(self):
+        while True:
+            if self.switch_on:  # Music detect mode
+                if self.music_triggered:  # sensor detects lights should be on.
+                    if not self.lights_on:  # If lights are physically off, turn them on
+                        self.all_lights_on()
+                else:  # Sensor detects lights should be off.
+                    if self.lights_on:  # If lights are physically on, turn them off.
+                        self.all_lights_off()
+            else:  # Traffic light mode
+                if self.previous_switch:  # If the switch was previously set for music
+                    self.initialize()  # Reset the light timings
+                    self.previous_switch = False  # Set previous setting for music to false
+                if not self.light_event.is_set():  # If we are in traffic light mode
+                    i = 0
+                    if True not in self.powered:  # If no lights are on
+                        self.initialize()  # Reset timings
+                    else:
+                        self.light_event.wait(.5)  # Wait half a second
+                    for light in self.lights:  # Cycle through all Light objects
+                        light.cycle()  # run the Light object's cycle
+                        self.powered[i] = light.status()  # Set whether or not this light has power on.
+                        i += 1
+                else:
+                    self.all_lights_off()  # Probably won't run, but in case it gets here, the lights should shut off.
 
 
 def main():
@@ -211,6 +225,7 @@ def main():
 
     # Setup callback for switch.
     GPIO.add_event_detect(SENSORS['switch'], GPIO.BOTH, callback=lights.switch_detect)
+    GPIO.add_event_detect(SENSORS['music'], GPIO.BOTH, callback=lights.music_detect)
 
     # Start LCD
 

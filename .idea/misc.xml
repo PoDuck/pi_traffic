@@ -72,11 +72,8 @@
       <textMaps />
     </LinkMapSettings>
   </component>
-  <component name="NodePackageJsonFileManager">
-    <packageJsonPaths />
-  </component>
   <component name="PreferredVcsStorage">
     <preferredVcsName>ApexVCS</preferredVcsName>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.5.3 (sftp://pi@10.1.10.22:22/home/pi/.virtualenvs/pi_traffic/bin/python)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.5 (pi_traffic)" project-jdk-type="Python SDK" />
 </project>
