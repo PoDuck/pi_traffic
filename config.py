@@ -1,7 +1,7 @@
 import os
 
 # Be verbose about what is going on
-DEBUG = False
+DEBUG = True
 
 # LCD power switch pin
 LCD_POWER = 22

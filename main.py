@@ -101,7 +101,7 @@ class TrafficSignal(object):
     lights = []
     powered = []
     music_triggered = False
-    previous_music = None
+    current_music_mode = None
     previous_switch = None
     lights_on = False
 
@@ -153,18 +153,6 @@ class TrafficSignal(object):
                 print("Falling edge detected.")
                 print("Lights initialized")
 
-    def music_detect(self, channel):
-        """
-        Callback for music sensor switch.
-        :param channel: GPIO Channel
-        :return: None
-        """
-        # If music sensor pulled high turn off lights
-        if GPIO.input(self.sensors['music']):
-            self.music_triggered = False
-        else:  # Music sensor pulled low turn on lights
-            self.music_triggered = True
-
     def all_lights_off(self):
         """
         Turn all lights off
@@ -196,13 +184,45 @@ class TrafficSignal(object):
         for light in self.lights:
             light.start_time = start_time
 
+    def music_detect(self, channel):
+        """
+        Callback for music sensor switch.
+        :param channel: GPIO Channel
+        :return: None
+        """
+        self.music_triggered = True
+        # If music sensor pulled high turn off lights
+        self.current_music_mode = GPIO.input(self.sensors['music'])
+
     def music_cycle(self):
-        if self.music_triggered:  # sensor detects lights should be on.
-            if not self.lights_on:  # If lights are physically off, turn them on
-                self.all_lights_on()
-        else:  # Sensor detects lights should be off.
-            if self.lights_on:  # If lights are physically on, turn them off.
-                self.all_lights_off()
+        # If music switch is high, turn lights on.
+        if self.music_triggered:
+            # Reset music_triggered switch detect
+            self.music_triggered = False
+            # If switch has been flipped, and music set to high
+            if self.current_music_mode:
+                # only turn lights on if they are already off.
+                if not self.lights_on:
+                    self.all_lights_on()
+            else:  # Music switch set low
+                # only turn lights off if lights are on.
+                if self.lights_on:
+                    self.all_lights_off()
+
+        # If the current music sensor is different than the last sensor, trigger work.
+        # if current_music != self.previous_music:
+        #     self.music_triggered = True
+        #     self.previous_music = current_music
+        #
+        #     # If sound is detected turn lights on
+        #     if current_music == GPIO.HIGH:
+        #         self.all_lights_on()
+        #         self.music_triggered = False
+        #
+        #     # No sound detected, turn lights off
+        #     else:
+        #         self.all_lights_off()
+        #         self.music_triggered = False
 
     def traffic_light_cycle(self):
         if self.previous_switch:  # If the switch was previously set for music
@@ -223,10 +243,31 @@ class TrafficSignal(object):
 
     def cycle(self):
         while True:
-            if self.switch_on:  # Music detect mode
+            if self.switch_on:
+                if not self.previous_switch:
+                    self.all_lights_off()
+                    self.previous_switch = True
+
+                # current_music = GPIO.input(SENSORS['music'])
+
                 self.music_cycle()
-            else:  # Traffic light mode
-                self.traffic_light_cycle()
+            else:
+                if self.previous_switch:
+                    self.initialize()
+                    self.previous_switch = False
+                if not self.light_event.is_set():
+                    i = 0
+                    if True not in self.powered:
+                        self.initialize()
+                    else:
+                        self.light_event.wait(1)
+                    for light in self.lights:
+                        light.cycle()
+                        self.powered[i] = light.status()
+                        i += 1
+                else:
+                    self.all_lights_off()
+
 
 def main():
     # Initialize GPIO
