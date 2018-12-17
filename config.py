@@ -21,6 +21,10 @@ SENSORS = {
     'switch': 23,
 }
 
+
+# This block of variables is only used in this file for the sequence,
+# and can be either disregarded, or changed as needed.
+# -------------------------------------------------------- #
 # Amount of time after light changes to red before green lights turn on for other direction.
 RED_DELAY = 3
 # Amount of time green light stays on (affects red light as well)
@@ -33,6 +37,7 @@ YELLOW_ARROW_DURATION = 5
 GREEN_ARROW_BEFORE_GREEN_LIGHT = 5
 # Amount of time green arrow stays on
 GREEN_ARROW_DURATION = 10
+# -------------------------------------------------------- #
 
 
 # (light, delay, duration)
