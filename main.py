@@ -196,32 +196,37 @@ class TrafficSignal(object):
         for light in self.lights:
             light.start_time = start_time
 
+    def music_cycle(self):
+        if self.music_triggered:  # sensor detects lights should be on.
+            if not self.lights_on:  # If lights are physically off, turn them on
+                self.all_lights_on()
+        else:  # Sensor detects lights should be off.
+            if self.lights_on:  # If lights are physically on, turn them off.
+                self.all_lights_off()
+
+    def traffic_light_cycle(self):
+        if self.previous_switch:  # If the switch was previously set for music
+            self.initialize()  # Reset the light timings
+            self.previous_switch = False  # Set previous setting for music to false
+        if not self.light_event.is_set():  # If we are in traffic light mode
+            i = 0
+            if True not in self.powered:  # If no lights are on
+                self.initialize()  # Reset timings
+            else:
+                self.light_event.wait(.5)  # Wait half a second
+            for light in self.lights:  # Cycle through all Light objects
+                light.cycle()  # run the Light object's cycle
+                self.powered[i] = light.status()  # Set whether or not this light has power on.
+                i += 1
+        else:
+            self.all_lights_off()  # Probably won't run, but in case it gets here, the lights should shut off.
+
     def cycle(self):
         while True:
             if self.switch_on:  # Music detect mode
-                if self.music_triggered:  # sensor detects lights should be on.
-                    if not self.lights_on:  # If lights are physically off, turn them on
-                        self.all_lights_on()
-                else:  # Sensor detects lights should be off.
-                    if self.lights_on:  # If lights are physically on, turn them off.
-                        self.all_lights_off()
+                self.music_cycle()
             else:  # Traffic light mode
-                if self.previous_switch:  # If the switch was previously set for music
-                    self.initialize()  # Reset the light timings
-                    self.previous_switch = False  # Set previous setting for music to false
-                if not self.light_event.is_set():  # If we are in traffic light mode
-                    i = 0
-                    if True not in self.powered:  # If no lights are on
-                        self.initialize()  # Reset timings
-                    else:
-                        self.light_event.wait(.5)  # Wait half a second
-                    for light in self.lights:  # Cycle through all Light objects
-                        light.cycle()  # run the Light object's cycle
-                        self.powered[i] = light.status()  # Set whether or not this light has power on.
-                        i += 1
-                else:
-                    self.all_lights_off()  # Probably won't run, but in case it gets here, the lights should shut off.
-
+                self.traffic_light_cycle()
 
 def main():
     # Initialize GPIO
