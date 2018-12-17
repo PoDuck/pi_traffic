@@ -34,19 +34,6 @@ GREEN_ARROW_BEFORE_GREEN_LIGHT = 5
 # Amount of time green arrow stays on
 GREEN_ARROW_DURATION = 10
 
-# # Amount of time after light changes to red before green lights turn on for other direction.
-# RED_DELAY = 0
-# # Amount of time green light stays on (affects red light as well)
-# DURATION = .5
-# # Amount of time yellow light stays on
-# YELLOW_DURATION = .5
-# # Amount of time yellow arrow stays on
-# YELLOW_ARROW_DURATION = .5
-# # Amount of time for green arrow to stay on before green solid goes on.
-# GREEN_ARROW_BEFORE_GREEN_LIGHT = .5
-# # Amount of time green arrow stays on
-# GREEN_ARROW_DURATION = .5
-
 
 # (light, delay, duration)
 SEQUENCE = (
