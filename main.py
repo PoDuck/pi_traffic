@@ -149,6 +149,8 @@ class TrafficSignal(object):
 
         self.start_mode = self.mode
         self.screen.lcd_display_string("Mode: " + self.mode, 2)
+        if DEBUG:
+            print("Mode: " + self.mode)
         self.ip_max = len(self.line1_string)
         self.lcd_pos = 0
 
@@ -238,8 +240,6 @@ class TrafficSignal(object):
                     i = 0
                     if True not in self.powered:
                         self.initialize()
-                    else:
-                        self.light_event.wait(.5)
                     for light in self.lights:
                         light.cycle()
                         self.powered[i] = light.status()
@@ -250,19 +250,19 @@ class TrafficSignal(object):
 
     def lcd_tick(self):
         now = time() * 1000
-        # Since traffic light tick has a 500ms delay, turn delay off.
-        if self.mode == "Traffic":
-            delay = 0
-        else:
-            delay = 500
+        delay = 500
         # If last lcd event was over delay ms ago, and lcd position is inside the length of line 1
         if now - self.lcd_time > delay and self.lcd_pos in range(0, len(self.line1_string)):
             self.screen.lcd_display_string(self.lcd_pad, 1)
             lcd_text = self.line1_string[self.lcd_pos:(self.lcd_pos + 16)]
             self.screen.lcd_display_string(lcd_text, 1)
+            if DEBUG:
+                print(lcd_text)
             if self.mode != self.start_mode:
                 self.screen.lcd_display_string(self.lcd_pad, 2)
                 self.screen.lcd_display_string("Mode: " + self.mode, 2)
+                if DEBUG:
+                    print("Mode: " + self.mode)
                 self.start_mode = self.mode
             self.lcd_pos += 1
             # if position is greater than the length of the line 1 string, reset position.
