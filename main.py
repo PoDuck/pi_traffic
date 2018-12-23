@@ -149,11 +149,12 @@ class TrafficSignal(object):
         sleep(1)
 
         self.start_mode = self.mode
-        self.screen.lcd_display_string("Mode: " + self.mode, 2)
-        if DEBUG:
-            print("Mode: " + self.mode)
-        self.ip_max = len(self.line1_string)
-        self.lcd_pos = 0
+        if USE_LCD:
+            self.screen.lcd_display_string("Mode: " + self.mode, 2)
+            if DEBUG:
+                print("Mode: " + self.mode)
+            self.ip_max = len(self.line1_string)
+            self.lcd_pos = 0
 
     def switch_detect(self, channel):
         """
