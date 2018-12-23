@@ -8,7 +8,7 @@ import I2C_LCD_driver
 import socket
 
 
-def get_ip_address(ifname):
+def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     ip = s.getsockname()[0]
@@ -128,7 +128,7 @@ class TrafficSignal(object):
         self.pins = pins
         if USE_LCD:
             self.screen = I2C_LCD_driver.lcd()
-            self.line1_string = "IP Address: " + get_ip_address("wlan0")
+            self.line1_string = "IP Address: " + get_ip_address()
             self.lcd_pad = " " * 16
             self.lcd_time = time() * 1000
 
@@ -287,16 +287,12 @@ def main():
     # Setup callback for switch.
     GPIO.add_event_detect(SENSORS['switch'], GPIO.BOTH, callback=lights.switch_detect)
 
-    # Start LCD
-    # p = subprocess.Popen(['python', '/home/pi/pi_traffic/lcd_control.py'])
-
     try:
         # Start light cycle.
         lights.cycle()
 
     except KeyboardInterrupt:
         GPIO.cleanup()
-        # p.terminate()
 
 
 if __name__ == '__main__':
