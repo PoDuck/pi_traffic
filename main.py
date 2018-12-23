@@ -1,8 +1,19 @@
 #!/usr/bin/python
+# import subprocess
 from config import *
 from time import sleep, time
 import RPi.GPIO as GPIO
-from threading import Event, Thread
+from threading import Event
+import I2C_LCD_driver
+import socket
+
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
 
 
 class Light(object):
@@ -115,6 +126,11 @@ class TrafficSignal(object):
         self.sensors = sensors
         self.sequence = sequence
         self.pins = pins
+        self.screen = I2C_LCD_driver.lcd()
+        self.line1_string = "IP Address: " + get_ip_address("wlan0")
+        self.lcd_pad = " " * 16
+        self.lcd_time = time() * 1000
+
         for light in sequence:
             self.lights.append(Light(pins, light))
             self.powered.append(False)
@@ -130,6 +146,11 @@ class TrafficSignal(object):
             sleep(.5)
             light.off()
         sleep(1)
+
+        self.start_mode = self.mode
+        self.screen.lcd_display_string("Mode: " + self.mode, 2)
+        self.ip_max = len(self.line1_string)
+        self.lcd_pos = 0
 
     def switch_detect(self, channel):
         """
@@ -194,25 +215,9 @@ class TrafficSignal(object):
         # If music sensor pulled high turn off lights
         self.current_music_mode = GPIO.input(self.sensors['music'])
 
-    def traffic_light_cycle(self):
-        if self.previous_switch:  # If the switch was previously set for music
-            self.initialize()  # Reset the light timings
-            self.previous_switch = False  # Set previous setting for music to false
-        if not self.light_event.is_set():  # If we are in traffic light mode
-            i = 0
-            if True not in self.powered:  # If no lights are on
-                self.initialize()  # Reset timings
-            else:
-                self.light_event.wait(.5)  # Wait half a second
-            for light in self.lights:  # Cycle through all Light objects
-                light.cycle()  # run the Light object's cycle
-                self.powered[i] = light.status()  # Set whether or not this light has power on.
-                i += 1
-        else:
-            self.all_lights_off()  # Probably won't run, but in case it gets here, the lights should shut off.
-
     def cycle(self):
         while True:
+            self.lcd_tick()
             # Check if switch is in a different position, and if so shut off lights
             current_switch = GPIO.input(SENSORS['switch'])
             if current_switch != self.previous_switch:
@@ -234,7 +239,7 @@ class TrafficSignal(object):
                     if True not in self.powered:
                         self.initialize()
                     else:
-                        self.light_event.wait(1)
+                        self.light_event.wait(.5)
                     for light in self.lights:
                         light.cycle()
                         self.powered[i] = light.status()
@@ -242,6 +247,28 @@ class TrafficSignal(object):
                 else:
                     self.all_lights_off()
             self.previous_switch = current_switch
+
+    def lcd_tick(self):
+        now = time() * 1000
+        # Since traffic light tick has a 500ms delay, turn delay off.
+        if self.mode == "Traffic":
+            delay = 0
+        else:
+            delay = 500
+        # If last lcd event was over delay ms ago, and lcd position is inside the length of line 1
+        if now - self.lcd_time > delay and self.lcd_pos in range(0, len(self.line1_string)):
+            self.screen.lcd_display_string(self.lcd_pad, 1)
+            lcd_text = self.line1_string[self.lcd_pos:(self.lcd_pos + 16)]
+            self.screen.lcd_display_string(lcd_text, 1)
+            if self.mode != self.start_mode:
+                self.screen.lcd_display_string(self.lcd_pad, 2)
+                self.screen.lcd_display_string("Mode: " + self.mode, 2)
+                self.start_mode = self.mode
+            self.lcd_pos += 1
+            # if position is greater than the length of the line 1 string, reset position.
+            if self.lcd_pos > len(self.line1_string) - 1:
+                self.lcd_pos = 0
+            self.lcd_time = now
 
 
 def main():
@@ -258,6 +285,7 @@ def main():
     GPIO.add_event_detect(SENSORS['switch'], GPIO.BOTH, callback=lights.switch_detect)
 
     # Start LCD
+    # p = subprocess.Popen(['python', '/home/pi/pi_traffic/lcd_control.py'])
 
     try:
         # Start light cycle.
@@ -265,6 +293,7 @@ def main():
 
     except KeyboardInterrupt:
         GPIO.cleanup()
+        # p.terminate()
 
 
 if __name__ == '__main__':
