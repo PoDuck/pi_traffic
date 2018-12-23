@@ -126,10 +126,11 @@ class TrafficSignal(object):
         self.sensors = sensors
         self.sequence = sequence
         self.pins = pins
-        self.screen = I2C_LCD_driver.lcd()
-        self.line1_string = "IP Address: " + get_ip_address("wlan0")
-        self.lcd_pad = " " * 16
-        self.lcd_time = time() * 1000
+        if USE_LCD:
+            self.screen = I2C_LCD_driver.lcd()
+            self.line1_string = "IP Address: " + get_ip_address("wlan0")
+            self.lcd_pad = " " * 16
+            self.lcd_time = time() * 1000
 
         for light in sequence:
             self.lights.append(Light(pins, light))
@@ -219,7 +220,8 @@ class TrafficSignal(object):
 
     def cycle(self):
         while True:
-            self.lcd_tick()
+            if USE_LCD:
+                self.lcd_tick()
             # Check if switch is in a different position, and if so shut off lights
             current_switch = GPIO.input(SENSORS['switch'])
             if current_switch != self.previous_switch:

@@ -3,6 +3,9 @@ import os
 # Be verbose about what is going on
 DEBUG = False
 
+# True if you are connecting an LCD
+USE_LCD = True
+
 # LCD power switch pin
 LCD_POWER = 22
 
