@@ -6,7 +6,8 @@ DEBUG = False
 # True if you are connecting an LCD
 USE_LCD = True
 
-# LCD power switch pin
+# LCD power switch pin.  This is if you connect an NPN transistor to switch power on and off to the LCD.
+# It is not the pin to directly power the LCD.
 LCD_POWER = 22
 
 # GPIO Mapping for lights
