@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # import subprocess
-from config import *
+from controller.config import *
 from time import sleep, time
 import RPi.GPIO as GPIO
 from threading import Event
-import I2C_LCD_driver
+from controller import I2C_LCD_driver
 import socket
 
 

@@ -7,6 +7,10 @@ To use this, all configuration is done in the **config.py** file.  The most impo
 
 The config file is well commented, so it should be obvious what each setting is.
 
+**How to install django server**
+
+There is a very good explanation of how to setup a django server with Apache on the Raspberry pi [here](https://mikesmithers.wordpress.com/2017/02/21/configuring-django-with-apache-on-a-raspberry-pi/ "The Anti-Kyte Django on Raspberry Pi tutorial").  Obviously, you will want to configure things for your particular setup.
+
 **How to set timing**
 
 The idea behind delay and duration may not be obvious.  When the traffic signal is initialized, it sets the start time to all lights to the current time.  The time the light comes on is the delay from this initialization.  So, when you want a light to come on at the very beginning of the cycle, its delay is zero.  The amount of time it remains on is its duration.  So, for instance, if you want the green light to come on at t=0, and stay on for 20 seconds, your tuple for the green light would look something like this:

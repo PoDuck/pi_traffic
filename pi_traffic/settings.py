@@ -118,3 +118,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join( BASE_DIR, "static/")
+
+# This imports a local settings file so that you don't need to keep secret settings in main repo
+try:
+    from .local_settings import *
+except ImportError as e:
+    pass
