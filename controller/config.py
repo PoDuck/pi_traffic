@@ -1,7 +1,7 @@
 import os
 
 # Be verbose about what is going on
-DEBUG = False
+DEBUG = True
 
 # True if you are connecting an LCD
 USE_LCD = True

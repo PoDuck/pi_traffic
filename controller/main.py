@@ -6,6 +6,8 @@ import RPi.GPIO as GPIO
 from threading import Event
 from controller import I2C_LCD_driver
 import socket
+import psycopg2
+from pi_traffic.settings import DATABASES
 
 
 def get_ip_address():
@@ -32,7 +34,7 @@ class Light(object):
     start_time = None
     _delay = 0
 
-    def __init__(self, lights, sequence):
+    def __init__(self, sequence):
         """
         Initialize light
         :param lights: dictionary of {color: GPIO_pin, ...}
@@ -41,8 +43,8 @@ class Light(object):
         self._color = sequence[0]
         self._delay = sequence[1]
         self._duration = sequence[2]
+        self.pin = sequence[3]
         self._power = False
-        self.pin = lights[self._color]
         GPIO.setup(self.pin, GPIO.OUT)
         self.start_time = time()
 
@@ -117,25 +119,23 @@ class TrafficSignal(object):
     previous_switch = None
     lights_on = False
 
-    def __init__(self, pins, sensors, sequence):
+    def __init__(self, sensors):
         """
         TrafficSignal initialization
         :param pins: Dictionary containing values in {color: GPIO_pin} format.
         :param sensors: Dictionary containing values for 'switch' and 'music' GPIO pins
-        :param sequence: List of tuples for each light in the form [(light, delay, duration), ...].
         """
         self.sensors = sensors
-        self.sequence = sequence
-        self.pins = pins
+        self.db = psycopg2.connect(host=DATABASES['default']['HOST'], database=DATABASES['default']['NAME'], user=DATABASES['default']['USER'], password=DATABASES['default']['PASSWORD'])
+        cur = self.db.cursor()
+        cur.execute('SELECT lights_light.color, lights_light.delay, lights_light.duration, lights_light.pin FROM public.lights_light;')
+        self.sequence = cur.fetchall()
         if USE_LCD:
             self.screen = I2C_LCD_driver.lcd()
             self.line1_string = "IP Address: " + get_ip_address()
             self.lcd_pad = " " * 16
             self.lcd_time = time() * 1000
-
-        for light in sequence:
-            self.lights.append(Light(pins, light))
-            self.powered.append(False)
+        self.sequence_reset()
         if GPIO.input(sensors['switch']):
             self.switch_on = True
             self.mode = "Music"
@@ -220,6 +220,14 @@ class TrafficSignal(object):
         # If music sensor pulled high turn off lights
         self.current_music_mode = GPIO.input(self.sensors['music'])
 
+    def sequence_reset(self):
+        self.all_lights_off()
+        self.lights = []
+        self.powered = []
+        for sequence in self.sequence:
+            self.lights.append(Light(sequence))
+            self.powered.append(False)
+
     def cycle(self):
         while True:
             if USE_LCD:
@@ -230,7 +238,8 @@ class TrafficSignal(object):
                 self.all_lights_off()
 
             # Check if in music mode
-            if self.switch_on:
+            # if self.switch_on:
+            if not True:
                 if GPIO.input(SENSORS['music']) == GPIO.LOW:
                     if self.lights_on:
                         self.all_lights_off()
@@ -238,6 +247,12 @@ class TrafficSignal(object):
                     if not self.lights_on:
                         self.all_lights_on()
             else:  # In traffic mode
+                cur = self.db.cursor()
+                cur.execute('SELECT lights_light.color, lights_light.delay, lights_light.duration, lights_light.pin FROM public.lights_light;')
+                new_sequence = cur.fetchall()
+                if self.sequence != new_sequence:
+                    self.sequence = new_sequence
+                    self.sequence_reset()
                 if self.previous_switch:
                     self.initialize()
                 if not self.light_event.is_set():
@@ -284,7 +299,7 @@ def main():
     GPIO.setup(SENSORS['switch'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     # initialize lights
-    lights = TrafficSignal(LIGHTS, SENSORS, SEQUENCE)
+    lights = TrafficSignal(SENSORS)
 
     # Setup callback for switch.
     GPIO.add_event_detect(SENSORS['switch'], GPIO.BOTH, callback=lights.switch_detect)
