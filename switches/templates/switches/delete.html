@@ -1,0 +1,8 @@
+{% extends 'home/base.html' %}
+{% block body %}
+    <form method="post">
+        {% csrf_token %}
+        <p>Are you sure you want to delete the "{{ object.name }}" switch?</p>
+        <button type="submit" class="btn btn-danger">Confirm</button>
+    </form>
+{% endblock body %}

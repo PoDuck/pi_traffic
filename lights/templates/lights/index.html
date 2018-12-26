@@ -10,8 +10,8 @@
             <th>Pin</th>
             <th>Delay</th>
             <th>Duration</th>
-            <th>Update</th>
-            <th>Delete</th>
+            <th>Pull Direction</th>
+            <th>&nbsp;</th>
         </thead>
         <tbody>
         </tr>
@@ -21,12 +21,11 @@
                 <td>{{ light.pin }}</td>
                 <td>{{ light.delay }}</td>
                 <td>{{ light.duration }}</td>
+                <td>{% if light.pull %}HIGH{% else %}LOW{% endif %}</td>
                 <td>
                     <button type="button" class="btn btn-primary"
                             onclick="window.location='{% url 'lights:update' light.pk %}';">Update
                     </button>
-                </td>
-                <td>
                     <button type="button" class="btn btn-danger"
                             onclick="window.location='{% url 'lights:delete' light.pk %}';">delete
                     </button>

@@ -24,6 +24,9 @@
             <li class="nav-item{% if page == "lights" %} active{% endif %}">
                 <a class="nav-link" href="{% url 'lights:index' %}">Lights</a>
             </li>
+            <li class="nav-item{% if page == "switches" %} active{% endif %}">
+                <a class="nav-link" href="{% url 'switches:index' %}">Switches</a>
+            </li>
         </ul>
     </div>
 </nav>

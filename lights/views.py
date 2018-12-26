@@ -7,11 +7,13 @@ from django.urls import reverse_lazy
 class Index(ListView):
     template_name = 'lights/index.html'
     model = Light
+    ordering = 'delay'
 
     def get_context_data(self, **kwargs):
         context = super(Index, self).get_context_data(**kwargs)
         context['page'] = 'lights'
         context['title'] = 'Light Index'
+        lights = []
         return context
 
 
