@@ -1,0 +1,39 @@
+{% extends 'home/base.html' %}
+{% load staticfiles %}
+{% block body %}
+    <h2>Light Settings</h2>
+    <table class="table table-bordered table-sm table-striped">
+    <caption>List of lights</caption>
+        <thead class="thead-dark">
+        <tr>
+            <th>Light</th>
+            <th>Pin</th>
+            <th>Delay</th>
+            <th>Duration</th>
+            <th>Update</th>
+            <th>Delete</th>
+        </thead>
+        <tbody>
+        </tr>
+        {% for light in object_list %}
+            <tr>
+                <td>{{ light.color }}</td>
+                <td>{{ light.pin }}</td>
+                <td>{{ light.delay }}</td>
+                <td>{{ light.duration }}</td>
+                <td>
+                    <button type="button" class="btn btn-primary"
+                            onclick="window.location='{% url 'lights:update' light.pk %}';">Update
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger"
+                            onclick="window.location='{% url 'lights:delete' light.pk %}';">delete
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-info" onclick="window.location='{% url 'lights:create' %}';">Add New</button>
+{% endblock body %}
