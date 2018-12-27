@@ -7,25 +7,26 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'fontawesome-free/css/all.min.css' %}">
     <meta charset="UTF-8">
     <title>Raspberry Pi Traffic Control - {{ title }}</title>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="#">Pi Traffic</a>
+    <a class="navbar-brand" href="#"><i class="fas fa-road"></i> <strong>Pi Traffic</strong></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav">
             <li class="nav-item{% if page == "home" %} active{% endif %}">
-                <a class="nav-link" href="{% url 'home:index' %}">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="{% url 'home:index' %}"><i class="fas fa-home"></i> Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item{% if page == "lights" %} active{% endif %}">
-                <a class="nav-link" href="{% url 'lights:index' %}">Lights</a>
+                <a class="nav-link" href="{% url 'lights:index' %}"><i class="fas fa-traffic-light"></i> Lights</a>
             </li>
             <li class="nav-item{% if page == "switches" %} active{% endif %}">
-                <a class="nav-link" href="{% url 'switches:index' %}">Switches</a>
+                <a class="nav-link" href="{% url 'switches:index' %}"><i class="fab fa-nintendo-switch"></i> Switches</a>
             </li>
         </ul>
     </div>

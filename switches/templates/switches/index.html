@@ -1,34 +1,37 @@
 {% extends 'home/base.html' %}
 {% load staticfiles %}
 {% block body %}
-    <h2>Switch Settings</h2>
-    <table class="table table-bordered table-sm table-striped">
-    <caption>List of switches</caption>
-        <thead class="thead-dark">
-        <tr>
-            <th>Name</th>
-            <th>Pin</th>
-            <th>Pull Direction</th>
-            <th>&nbsp;</th>
-        </thead>
-        <tbody>
-        </tr>
-        {% for switch in object_list %}
+    <div class="container-fluid mt-5">
+        <h2>Switch Settings</h2>
+        <table class="table table-bordered table-sm table-striped">
+            <caption>List of switches</caption>
+            <thead class="thead-dark">
             <tr>
-                <td>{{ switch.name }}</td>
-                <td>{{ switch.pin }}</td>
-                <td>{% if switch.pull %}HIGH{% else %}LOW{% endif %}</td>
-                <td>
-                    <button type="button" class="btn btn-primary"
-                            onclick="window.location='{% url 'switches:update' switch.pk %}';">Update
-                    </button>
-                    <button type="button" class="btn btn-danger"
-                            onclick="window.location='{% url 'switches:delete' switch.pk %}';">delete
-                    </button>
-                </td>
+                <th>Name</th>
+                <th>Pin</th>
+                <th>Pull Direction</th>
+                <th>&nbsp;</th>
+            </thead>
+            <tbody>
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <button type="button" class="btn btn-info" onclick="window.location='{% url 'switches:create' %}';">Add New</button>
+            {% for switch in object_list %}
+                <tr>
+                    <td>{{ switch.name }}</td>
+                    <td>{{ switch.pin }}</td>
+                    <td>{% if switch.pull %}HIGH{% else %}LOW{% endif %}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                onclick="window.location='{% url 'switches:update' switch.pk %}';">Update
+                        </button>
+                        <button type="button" class="btn btn-danger"
+                                onclick="window.location='{% url 'switches:delete' switch.pk %}';">delete
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-info" onclick="window.location='{% url 'switches:create' %}';">Add New
+        </button>
+    </div>
 {% endblock body %}

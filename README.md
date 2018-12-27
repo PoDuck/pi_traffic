@@ -1,38 +1,126 @@
-# pi_traffic
-Control software to allow raspberry pi to control traffic signal lights, as well as be responsive to music.
+# Welcome to Pi Traffic
 
-This was intended to be connected to an actual traffic light through a relay module, but can be used just to light up LED lights as well.
+## Installation
+This is meant to run on a server ready to run django projects.  You can install it however you want, using whatever server you want, and this will work, as long as you configure your server correctly.  The installation of django does not need to be for the raspberry pi, but there are several tutorials on how to do it, and I'm not looking to reinvent that wheel.
 
-To use this, all configuration is done in the **config.py** file.  The most important setting, after pin settings for lights and sensors, is the SEQUENCE variable.  It determines how many lights will be controlled, their duration, and the delay before they start.
+First thing, after installing django, is to install the packages.  Make sure you have also installed pip.  then `pip install -r requirements.txt` will install all the python requirements.
 
-The config file is well commented, so it should be obvious what each setting is.
+Somewhere in the near future, I will set things up for automatically installing css and javascript dependencies using some package manager.  I'm too lazy to do it right now.  Suffice it to say though, you should install bootstrap 4, font-awesome-free, jquery, and popper into your static files directory.
 
-**How to install django server**
+After that, change the database settings in the settings.py or local_settings.py file to those of your database.  I used postgresql, so you will have to use that, unless you do some work on the code.  You will also need to make sure that your `ALLOWED_HOSTS` are set for being accessed remotely.
 
-There is a very good explanation of how to setup a django server with Apache on the Raspberry pi [here](https://mikesmithers.wordpress.com/2017/02/21/configuring-django-with-apache-on-a-raspberry-pi/ "The Anti-Kyte Django on Raspberry Pi tutorial").  Obviously, you will want to configure things for your particular setup.
+## How to use the web interface
 
-**How to set timing**
+There are links across the top to change settings.  Under the lights link, you configure the pins and lights you need for your particular traffic signal.  You should have one light for each light you have connected to your pi.  You should use the BCM mode pin number, and not the physical pin number, when setting the pins.  You also need to know if your relay needs to be pulled high or low in order to turn the light on.  Most solid relay modules are counterintuitively low when on, and high when off.  You can control as many lights as you have GPIO pins on the pi with this.
 
-The idea behind delay and duration may not be obvious.  When the traffic signal is initialized, it sets the start time to all lights to the current time.  The time the light comes on is the delay from this initialization.  So, when you want a light to come on at the very beginning of the cycle, its delay is zero.  The amount of time it remains on is its duration.  So, for instance, if you want the green light to come on at t=0, and stay on for 20 seconds, your tuple for the green light would look something like this:
+## Controlling Lights
 
-`('green', 0, 20)`
+When deciding the delay and duration, you need to understand that the lights go in a cycle.  The timing is from the beginning of the entire cycle.  For instance, on a five light system, you might want the green arrow to be on 10 seconds before the solid green light comes on, and you might want both of them to be on at the same time for a short period, but you want the green arrow to come on immediately.  That means that your delay for the green arrow is 0, while the delay for the solid green light is 10. 
 
-Now, when you look to your yellow light, you will probably want it to go on after the green light goes off, and stay on for 5 seconds, which means it has to start 20 seconds after t=0, so its tuple would look like this:
+A sample set of values for a 5 light system might be as follows:
 
-`('yellow', 20, 5)`
+<table style="width: 100%; border-collapse: collapse; height: 108px;" border="1">
 
-After the yellow light goes off, you may want to start the red light.  That means we need to wait the amount of time the green light was on, plus the amount of time the yellow light was on.  In the real world the red light will be on while the other direction cycles, so its duration will probably be the length of time the green light is on, plus the amount of time the yellow light is on, plus a couple second delay to allow traffic to get out of the intersection.  Therefore we will have something like this for its tuple:
+<tbody>
 
-`('red', 25, 27)`
+<tr style="height: 18px;">
 
-If this is just a three light system, you are done.  Here is your final sequence:
+<th style="width: 20%; text-align: center; height: 18px;">Light</th>
 
-`SEQUENCE = (
-    ('green', 0, 20),
-    ('yellow', 20, 5),
-    ('red', 25, 27)
-)`
+<th style="width: 20%; text-align: center; height: 18px;">Pin</th>
 
-Keep in mind that half seconds can be used, but the program is designed only to poll the lights to see if they want to change every half second, so the fastest they can change is half a second unless you change that section in the program.
+<th style="width: 20%; text-align: center; height: 18px;">Delay</th>
 
-This is just a fun project, and something added I haven't seen other people add before, namely the ability to do more than just sequence traffic lights.
+<th style="width: 20%; text-align: center; height: 18px;">Duration</th>
+
+<th style="width: 20%; text-align: center; height: 18px;">Pull</th>
+
+</tr>
+
+<tr style="height: 18px;">
+
+<td style="width: 20%; height: 18px;">Green Arrow</td>
+
+<td style="width: 20%; height: 18px;">18</td>
+
+<td style="width: 20%; height: 18px;">0.0</td>
+
+<td style="width: 20%; height: 18px;">10.0</td>
+
+<td style="width: 20%; height: 18px;">LOW</td>
+
+</tr>
+
+<tr style="height: 18px;">
+
+<td style="width: 20%; height: 18px;">Green</td>
+
+<td style="width: 20%; height: 18px;">17</td>
+
+<td style="width: 20%; height: 18px;">5.0</td>
+
+<td style="width: 20%; height: 18px;">25.0</td>
+
+<td style="width: 20%; height: 18px;">LOW</td>
+
+</tr>
+
+<tr style="height: 18px;">
+
+<td style="width: 20%; height: 18px;">Yellow Arrow</td>
+
+<td style="width: 20%; height: 18px;">15</td>
+
+<td style="width: 20%; height: 18px;">10.0</td>
+
+<td style="width: 20%; height: 18px;">5.0</td>
+
+<td style="width: 20%; height: 18px;">LOW</td>
+
+</tr>
+
+<tr style="height: 18px;">
+
+<td style="width: 20%; height: 18px;">Yellow</td>
+
+<td style="width: 20%; height: 18px;">4</td>
+
+<td style="width: 20%; height: 18px;">30.0</td>
+
+<td style="width: 20%; height: 18px;">5.0</td>
+
+<td style="width: 20%; height: 18px;">LOW</td>
+
+</tr>
+
+<tr style="height: 18px;">
+
+<td style="width: 20%; height: 18px;">Red</td>
+
+<td style="width: 20%; height: 18px;">27</td>
+
+<td style="width: 20%; height: 18px;">35.0</td>
+
+<td style="width: 20%; height: 18px;">38.0</td>
+
+<td style="width: 20%; height: 18px;">LOW</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+You will notice that the delay shows the order in which they will turn on.  The lower the delay, the sooner in the cycle the light will turn on.  Once it is on, it will stay on as long as the duration is set.  The duration starts from the time the light is turned on, not from the beginning of the cycle.  That means, for instance, since the yellow arrow comes on at 10 seconds from the start of the cycle, due to its delay, it will shut off 15 seconds into the cycle, because it stays on for 5 seconds after the initial 10 second wait to turn on.  None of the lights rely on any other light to be on or off.
+
+With this kind of setup, even if you have a full intersection's worth of lights, even pedestrian signals, you can control them individually.
+
+## Controlling Switches
+
+I have designed this to react to switch positions as well.  Unfortunately, it has been necessary to hard code some of this into the program that does the actual work.  That means that if you want to do different things than use a sensor to flash the lights on and off, you will need to modify the code.
+
+Currently, there are two switches.  One is a mode switch that flips it between being a regular traffic signal and reacting to the other switch, which is a sound sensor.  If you want to do more than that, you need to get your hands dirty and edit the code.
+
+## Future Intentions
+
+In the future, I intend to allow some interaction with an LCD screen.  I want to be able to change what is shown on the screen through this web interface.

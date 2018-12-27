@@ -1,38 +1,43 @@
 {% extends 'home/base.html' %}
 {% load staticfiles %}
 {% block body %}
-    <h2>Light Settings</h2>
-    <table class="table table-bordered table-sm table-striped">
-    <caption>List of lights</caption>
-        <thead class="thead-dark">
-        <tr>
-            <th>Light</th>
-            <th>Pin</th>
-            <th>Delay</th>
-            <th>Duration</th>
-            <th>Pull Direction</th>
-            <th>&nbsp;</th>
-        </thead>
-        <tbody>
-        </tr>
-        {% for light in object_list %}
-            <tr>
-                <td>{{ light.color }}</td>
-                <td>{{ light.pin }}</td>
-                <td>{{ light.delay }}</td>
-                <td>{{ light.duration }}</td>
-                <td>{% if light.pull %}HIGH{% else %}LOW{% endif %}</td>
-                <td>
-                    <button type="button" class="btn btn-primary"
-                            onclick="window.location='{% url 'lights:update' light.pk %}';">Update
-                    </button>
-                    <button type="button" class="btn btn-danger"
-                            onclick="window.location='{% url 'lights:delete' light.pk %}';">delete
-                    </button>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <button type="button" class="btn btn-info" onclick="window.location='{% url 'lights:create' %}';">Add New</button>
+    <div class="container-fluid mt-5">
+        <h2>Light Settings</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm table-striped">
+                <caption>List of lights</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Light</th>
+                    <th>Pin</th>
+                    <th>Delay</th>
+                    <th>Duration</th>
+                    <th>Pull Direction</th>
+                    <th>&nbsp;</th>
+                </thead>
+                <tbody>
+                </tr>
+                {% for light in object_list %}
+                    <tr>
+                        <td>{{ light.color }}</td>
+                        <td>{{ light.pin }}</td>
+                        <td>{{ light.delay }}</td>
+                        <td>{{ light.duration }}</td>
+                        <td>{% if light.pull %}HIGH{% else %}LOW{% endif %}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary"
+                                    onclick="window.location='{% url 'lights:update' light.pk %}';">Update
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    onclick="window.location='{% url 'lights:delete' light.pk %}';">delete
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="button" class="btn btn-info" onclick="window.location='{% url 'lights:create' %}';">Add New
+        </button>
+    </div>
 {% endblock body %}

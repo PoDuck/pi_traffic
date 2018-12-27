@@ -2,9 +2,12 @@
 {% load crispy_forms_tags %}
 {% load staticfiles %}
 {% block body %}
-    <form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button type="submit" class="btn btn-primary">Update</button>
-  </form>
+    <div class="container mt-5">
+        <h2>Update Light</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
 {% endblock body %}

@@ -1,3 +1,84 @@
 {% extends 'home/base.html' %}
 {% load staticfiles %}
-{% block body %}{{ page }}{% endblock body %}
+{% block body %}
+    <div class="container-fluid mt-5">
+        <h2>Welcome to Pi Traffic</h2>
+        <p>There are links across the top to change settings.&nbsp; Under the lights link, you configure the pins and
+            lights you need for your particular traffic signal.&nbsp; You should have one light for each light you have
+            connected to your pi.&nbsp; You should use the BCM mode pin number, and not the physical pin number, when
+            setting the pins.&nbsp; You also need to know if your relay needs to be pulled high or low in order to turn
+            the light on.&nbsp; Most solid relay modules are counterintuitively low when on, and high when off.&nbsp;
+            You can control as many lights as you have GPIO pins on the pi with this.</p>
+        <h2>Controlling Lights</h2>
+        <p>When deciding the delay and duration, you need to understand that the lights go in a cycle.&nbsp; The timing
+            is from the beginning of the entire cycle.&nbsp; For instance, on a five light system, you might want the
+            green arrow to be on 10 seconds before the solid green light comes on, and you might want both of them to be
+            on at the same time for a short period, but you want the green arrow to come on immediately.&nbsp; That
+            means that your delay for the green arrow is 0, while the delay for the solid green light is 10.&nbsp;</p>
+        <p>A sample set of values for a 5 light system might be as follows:</p>
+        <table style="width: 100%; border-collapse: collapse; height: 108px;" border="1">
+            <tbody>
+            <tr style="height: 18px;">
+                <th style="width: 20%; text-align: center; height: 18px;">Light</th>
+                <th style="width: 20%; text-align: center; height: 18px;">Pin</th>
+                <th style="width: 20%; text-align: center; height: 18px;">Delay</th>
+                <th style="width: 20%; text-align: center; height: 18px;">Duration</th>
+                <th style="width: 20%; text-align: center; height: 18px;">Pull</th>
+            </tr>
+            <tr style="height: 18px;">
+                <td style="width: 20%; height: 18px;">Green Arrow</td>
+                <td style="width: 20%; height: 18px;">18</td>
+                <td style="width: 20%; height: 18px;">0.0</td>
+                <td style="width: 20%; height: 18px;">10.0</td>
+                <td style="width: 20%; height: 18px;">LOW</td>
+            </tr>
+            <tr style="height: 18px;">
+                <td style="width: 20%; height: 18px;">Green</td>
+                <td style="width: 20%; height: 18px;">17</td>
+                <td style="width: 20%; height: 18px;">5.0</td>
+                <td style="width: 20%; height: 18px;">25.0</td>
+                <td style="width: 20%; height: 18px;">LOW</td>
+            </tr>
+            <tr style="height: 18px;">
+                <td style="width: 20%; height: 18px;">Yellow Arrow</td>
+                <td style="width: 20%; height: 18px;">15</td>
+                <td style="width: 20%; height: 18px;">10.0</td>
+                <td style="width: 20%; height: 18px;">5.0</td>
+                <td style="width: 20%; height: 18px;">LOW</td>
+            </tr>
+            <tr style="height: 18px;">
+                <td style="width: 20%; height: 18px;">Yellow</td>
+                <td style="width: 20%; height: 18px;">4</td>
+                <td style="width: 20%; height: 18px;">30.0</td>
+                <td style="width: 20%; height: 18px;">5.0</td>
+                <td style="width: 20%; height: 18px;">LOW</td>
+            </tr>
+            <tr style="height: 18px;">
+                <td style="width: 20%; height: 18px;">Red</td>
+                <td style="width: 20%; height: 18px;">27</td>
+                <td style="width: 20%; height: 18px;">35.0</td>
+                <td style="width: 20%; height: 18px;">38.0</td>
+                <td style="width: 20%; height: 18px;">LOW</td>
+            </tr>
+            </tbody>
+        </table>
+        <p>You will notice that the delay shows the order in which they will turn on.&nbsp; The lower the delay, the
+            sooner in the cycle the light will turn on.&nbsp; Once it is on, it will stay on as long as the duration is
+            set.&nbsp; The duration starts from the time the light is turned on, not from the beginning of the cycle.&nbsp;
+            That means, for instance, since the yellow arrow comes on at 10 seconds from the start of the cycle, due to
+            its delay, it will shut off 15 seconds into the cycle, because it stays on for 5 seconds after the initial
+            10 second wait to turn on.&nbsp; None of the lights rely on any other light to be on or off.</p>
+        <p>With this kind of setup, even if you have a full intersection's worth of lights, even pedestrian signals, you
+            can control them individually.</p>
+        <h2>Controlling Switches</h2>
+        <p>I have designed this to react to switch positions as well.&nbsp; Unfortunately, it has been necessary to hard
+            code some of this into the program that does the actual work.&nbsp; That means that if you want to do
+            different things than use a sensor to flash the lights on and off, you will need to modify the code.</p>
+        <p>Currently, there are two switches.&nbsp; One is a mode switch that flips it between being a regular traffic
+            signal and reacting to the other switch, which is a sound sensor.&nbsp; If you want to do more than that,
+            you need to get your hands dirty and edit the code.</p>
+        <h2>Future Intentions</h2>
+        <p>In the future, I intend to allow some interaction with an LCD screen.&nbsp; I want to be able to change what
+            is shown on the screen through this web interface.</p>
+    </div>
+{% endblock body %}
