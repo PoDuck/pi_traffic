@@ -1,0 +1,33 @@
+{% extends 'home/base.html' %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% block body %}
+    <div class="container mt-5">
+        <h2>Update LCD</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+{% endblock body %}
+{% block script %}
+<script>
+$(document).ready(function() {
+    $("#id_ip_line").change(function () {
+        if ($(this).val() === '2') {
+            $("#id_mode_line").val('1');
+        } else {
+            $("#id_mode_line").val('2');
+        }
+    });
+    $("#id_mode_line").change(function () {
+        if ($(this).val() === '2') {
+            $("#id_ip_line").val('1');
+        } else {
+            $("#id_ip_line").val('2');
+        }
+    });
+})
+</script>
+{% endblock script %}

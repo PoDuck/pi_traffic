@@ -40,6 +40,7 @@ class LightUpdate(UpdateView):
         context['title'] = 'Update Light'
         return context
 
+
 class LightDelete(DeleteView):
     model = Light
     template_name = 'lights/delete.html'

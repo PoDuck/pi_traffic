@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'lights.apps.LightsConfig',
     'switches.apps.SwitchesConfig',
+    'lcd.apps.LcdConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

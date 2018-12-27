@@ -28,6 +28,9 @@
             <li class="nav-item{% if page == "switches" %} active{% endif %}">
                 <a class="nav-link" href="{% url 'switches:index' %}"><i class="fab fa-nintendo-switch"></i> Switches</a>
             </li>
+            <li class="nav-item{% if page == 'lcd' %} active{% endif %}">
+                <a class="nav-link" href="{% url 'lcd:index' %}"><i class="fas fa-desktop"></i> LCDs</a>
+            </li>
         </ul>
     </div>
 </nav>
@@ -37,5 +40,7 @@
 <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'popper.js/dist/popper.min.js' %}"></script>
 <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+{% block script %}
+{% endblock script %}
 </body>
 </html>

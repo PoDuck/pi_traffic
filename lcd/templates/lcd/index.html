@@ -1,0 +1,47 @@
+{% extends 'home/base.html' %}
+{% load staticfiles %}
+{% block body %}
+    <div class="container-fluid mt-5">
+        <h2>LCD Settings</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm table-striped">
+                <caption>LCD Settings</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Active</th>
+                    <th>Line 1</th>
+                    <th>Line 2</th>
+                    <th>Show IP</th>
+                    <th>IP Line</th>
+                    <th>Show Mode</th>
+                    <th>Mode Line</th>
+                    <th>&nbsp;</th>
+                </thead>
+                <tbody>
+                </tr>
+                {% for lcd in object_list %}
+                    <tr>
+                        <td>{{ lcd.active }}</td>
+                        <td>{{ lcd.line_1 }}</td>
+                        <td>{{ lcd.line_2 }}</td>
+                        <td>{{ lcd.show_ip }}</td>
+                        <td>{{ lcd.ip_line }}</td>
+                        <td>{{ lcd.show_mode }}</td>
+                        <td>{{ lcd.mode_line }}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary"
+                                    onclick="window.location='{% url 'lcd:update' lcd.pk %}';">Update
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    onclick="window.location='{% url 'lcd:delete' lcd.pk %}';">delete
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="button" class="btn btn-info" onclick="window.location='{% url 'lcd:create' %}';">Add New
+        </button>
+    </div>
+{% endblock body %}
