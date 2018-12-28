@@ -9,7 +9,9 @@
             <tr>
                 <th>Name</th>
                 <th>Pin</th>
-                <th>Pull Direction</th>
+                <th>Pull Direction when on</th>
+                <th>On Name</th>
+                <th>Off Name</th>
                 <th>&nbsp;</th>
             </thead>
             <tbody>
@@ -19,6 +21,8 @@
                     <td>{{ switch.name }}</td>
                     <td>{{ switch.pin }}</td>
                     <td>{% if switch.pull %}HIGH{% else %}LOW{% endif %}</td>
+                    <td>{{ switch.on_name }}</td>
+                    <td>{{ switch.off_name }}</td>
                     <td>
                         <button type="button" class="btn btn-primary"
                                 onclick="window.location='{% url 'switches:update' switch.pk %}';">Update

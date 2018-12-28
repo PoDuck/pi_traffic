@@ -5,7 +5,9 @@ from time import sleep, time
 import RPi.GPIO as GPIO
 import socket
 import psycopg2
+import psycopg2.extras
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from controller import I2C_LCD_driver
 from pi_traffic import settings
 
 
@@ -88,12 +90,118 @@ class Light(object):
         return self._finished
 
 
+class Line(object):
+    def __init__(self, line):
+        self.line = ""
+        self._current_line = line
+        self.scroll = False
+        self.update_line(line)
+        self.scroll_position = 0
+
+    def update_line(self, line):
+        if self.line != line:
+            self.line = line
+            if len(line) > 16:
+                self.scroll = True
+            else:
+                self.scroll = False
+            padding = " " * (16 - len(line))
+            self._current_line = (line + padding)[:16]
+            self.scroll_position = 0
+
+    def get_line(self):
+        return self._current_line
+
+    def cycle(self):
+        if self.scroll:
+            if self.scroll_position >= len(self.line) + 3:
+                self.scroll_position = 0
+            end = self.line[:self.scroll_position]
+            start = self.line[self.scroll_position:]
+            if self.scroll_position > len(self.line):
+                end_dots = self.scroll_position - len(self.line)
+                start_dots = 3 - end_dots
+            else:
+                start_dots = 3
+                end_dots = 0
+            line = start + " " * start_dots + end + " " * end_dots
+            self._current_line = line[:16]
+            if settings.DEBUG:
+                print(self._current_line)
+            self.scroll_position += 1
+
+
+class Lcd(object):
+    def __init__(self, database):
+        self.db = database
+        self.lcd_query = "SELECT * FROM public.lcd_lcd WHERE active = 'True';"
+        self.lcd_data = {}
+        self.last_db_test = None
+        self.new_line = False
+        self.line_1 = None
+        self.line_2 = None
+        self.power_switch_pin = None
+        self.lcd = None
+        self.start_data = {}
+        self.db_check()
+        self.last_output_time = time()
+        self.start_data = self.lcd_data
+        if self.lcd_data:
+            self.lcd = I2C_LCD_driver.lcd()
+            self.line_1 = Line(self.lcd_data['line_1'])
+            self.line_2 = Line(self.lcd_data['line_2'])
+
+    def db_check(self):
+        cursor = self.db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute(self.lcd_query, ([]))
+        if cursor.rowcount:
+            lcd_data = cursor.fetchall()[0]
+            if lcd_data != self.lcd_data:
+                self.lcd_data = lcd_data
+                self.new_line = True
+        else:
+            self.lcd_data = {}
+        self.last_db_test = time()
+        if self.lcd_data:
+            if self.lcd_data['power_switch_pin']:
+                GPIO.setup(self.lcd_data['power_switch_pin'], GPIO.OUT)
+                GPIO.output(self.lcd_data['power_switch_pin'], GPIO.HIGH)
+
+    def mode_switch(self, mode):
+        if self.lcd_data['show_mode']:
+            if self.lcd_data['mode_line'] == 1:
+                self.line_1.update_line("Mode: " + mode)
+            else:
+                self.line_2.update_line("Mode: " + mode)
+        else:
+            if self.lcd_data['mode_line'] == 1:
+                self.line_1.update_line(self.lcd_data['line_1'])
+            else:
+                self.line_2.update_line(self.lcd_data['line_2'])
+
+    def cycle(self, mode):
+        now = time()
+        if now - self.last_db_test > 5:
+            self.db_check()
+            if self.lcd_data != self.start_data:
+                self.line_1.update_line(self.lcd_data['line_1'])
+                self.line_2.update_line(self.lcd_data['line_2'])
+                self.start_data = self.lcd_data
+        if now - self.last_output_time >= 0.5:
+            self.line_1.cycle()
+            self.line_2.cycle()
+            self.lcd.lcd_display_string(self.line_1.get_line(), 1)
+            self.lcd.lcd_display_string(self.line_2.get_line(), 2)
+            self.last_output_time = now
+
+
 class Display(object):
     def __init__(self):
         self.db = psycopg2.connect(host=settings.DATABASES['default']['HOST'],
                                    database=settings.DATABASES['default']['NAME'],
                                    user=settings.DATABASES['default']['USER'],
                                    password=settings.DATABASES['default']['PASSWORD'])
+        self.lcd = Lcd(self.db)
         cursor = self.db.cursor()
         self.sequence_query = """
                 SELECT lights_light.color,
@@ -105,7 +213,9 @@ class Display(object):
         self.switches_query = """
                 SELECT switches_switch.name,
                 switches_switch.pin,
-                switches_switch.pull
+                switches_switch.pull,
+                switches_switch.on_name,
+                switches_switch.off_name
                 FROM public.switches_switch;
                 """
         cursor.execute(self.sequence_query)
@@ -123,6 +233,8 @@ class Display(object):
             self.switches[switch[0]] = {
                 'pin': switch[1],
                 'pull': pull,
+                'on': switch[3],
+                'off': switch[4],
             }
         if self.switches['music']['pull']:
             initial = GPIO.PUD_DOWN
@@ -199,6 +311,8 @@ class Display(object):
                     self.switches[switch[0]] = {
                         'pin': switch[1],
                         'pull': pull,
+                        'on': switch[3],
+                        'off': switch[4],
                     }
                 self.last_switch_fetch = switches
                 self.reset_lights()
@@ -207,23 +321,41 @@ class Display(object):
                 self.reset_lights()
             self.db_last_accessed = now
 
-    def lcd_cycle(self):
+    def update_ip(self, lcd_id, ip, line):
+        """ update ip based on the id """
+        sql = "UPDATE lcd_lcd SET " + line + " = %s WHERE id = %s;"
+        cursor = self.db.cursor()
+        cursor.execute(sql, ("IP Address: " + ip, lcd_id))
+        updated_rows = cursor.rowcount
+        self.db.commit()
+        return updated_rows
+
+    def line_scroll(self, text, line):
         pass
+
+    def lcd_cycle(self, position):
+        if position:
+            mode = self.switches['mode']['on']
+        else:
+            mode = self.switches['mode']['off']
+        self.lcd.cycle(mode)
 
     def current_switch_position(self):
         return GPIO.input(self.switches['mode']['pin'])
 
     def main_cycle(self):
         while True:
-            self.lcd_cycle()
+            self.lcd_cycle(self.current_switch_position())
             self.db_test()
             if self.current_switch_position() != self.last_switch_position:
                 self.reset_lights()
                 self.last_switch_position = self.current_switch_position()
             if GPIO.input(self.switches['mode']['pin']) == self.switches['mode']['pull']:
                 self.music_cycle()
+                self.lcd.mode_switch(self.switches['mode']['on'])
             else:
                 self.light_cycle()
+                self.lcd.mode_switch(self.switches['mode']['off'])
 
 
 def main():

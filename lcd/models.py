@@ -14,3 +14,4 @@ class Lcd(models.Model):
     ip_line = models.IntegerField(choices=LINE_CHOICES, verbose_name='Line for IP address', default=1)
     show_mode = models.BooleanField(verbose_name='Display mode', default=True)
     mode_line = models.IntegerField(choices=LINE_CHOICES, verbose_name='Line for mode', default=2)
+    power_switch_pin = models.IntegerField(blank=True, null=True)

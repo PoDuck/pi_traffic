@@ -19,7 +19,7 @@ class SwitchIndex(ListView):
 class SwitchCreate(CreateView):
     model = Switch
     template_name = 'switches/create.html'
-    fields = ['name', 'pin', 'pull']
+    fields = ['name', 'pin', 'pull', 'on_name', 'off_name']
     success_url = reverse_lazy('switches:index')
 
     def get_context_data(self, **kwargs):
@@ -31,7 +31,7 @@ class SwitchCreate(CreateView):
 class SwitchUpdate(UpdateView):
     model = Switch
     template_name = 'switches/update.html'
-    fields = ['name', 'pin', 'pull']
+    fields = ['name', 'pin', 'pull', 'on_name', 'off_name']
     success_url = reverse_lazy('switches:index')
 
     def get_context_data(self, **kwargs):

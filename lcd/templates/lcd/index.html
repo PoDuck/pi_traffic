@@ -15,6 +15,7 @@
                     <th>IP Line</th>
                     <th>Show Mode</th>
                     <th>Mode Line</th>
+                    <th>Power Pin</th>
                     <th>&nbsp;</th>
                 </thead>
                 <tbody>
@@ -28,6 +29,7 @@
                         <td>{{ lcd.ip_line }}</td>
                         <td>{{ lcd.show_mode }}</td>
                         <td>{{ lcd.mode_line }}</td>
+                        <td>{{ lcd.power_switch_pin }}</td>
                         <td>
                             <button type="button" class="btn btn-primary"
                                     onclick="window.location='{% url 'lcd:update' lcd.pk %}';">Update

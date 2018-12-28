@@ -29,7 +29,7 @@ class Index(ListView):
 class LcdCreate(CreateView):
     model = Lcd
     template_name = 'lcd/create.html'
-    fields = ['active', 'line_1', 'line_2', 'show_ip', 'ip_line', 'show_mode', 'mode_line']
+    fields = ['active', 'line_1', 'line_2', 'show_ip', 'ip_line', 'show_mode', 'mode_line', 'power_switch_pin']
     success_url = reverse_lazy('lcd:index')
 
     def get_context_data(self, **kwargs):
@@ -58,7 +58,7 @@ class LcdCreate(CreateView):
 class LcdUpdate(UpdateView):
     model = Lcd
     template_name = 'lcd/update.html'
-    fields = ['active', 'line_1', 'line_2', 'show_ip', 'ip_line', 'show_mode', 'mode_line']
+    fields = ['active', 'line_1', 'line_2', 'show_ip', 'ip_line', 'show_mode', 'mode_line', 'power_switch_pin']
     success_url = reverse_lazy('lcd:index')
 
     def get_context_data(self, **kwargs):
