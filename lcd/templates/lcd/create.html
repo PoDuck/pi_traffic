@@ -28,6 +28,32 @@ $(document).ready(function() {
             $("#id_ip_line").val('2');
         }
     });
-})
+    if ($("#id_show_ip:checkbox").prop('checked')) {
+        $("#id_line_" + $("#id_ip_line").val()).attr("disabled", true).val("IP Address: {{ ip }}");
+    } else {
+        $("#id_line_" + $("#id_ip_line").val()).attr("disabled", false);
+    }
+    if ($("#id_show_mode:checkbox").prop('checked')) {
+        $("#id_line_" + $("#id_mode_line").val()).attr("disabled", true).val("Mode:  Traffic/Music");
+    } else {
+        $("#id_line_" + $("#id_mode_line").val()).attr("disabled", false);
+    }
+    $("#id_show_ip:checkbox ").change(function () {
+        console.log($(this).prop('checked'));
+        if ($(this).prop('checked')) {
+            $("#id_line_" + $("#id_ip_line").val()).val('IP Address:  {{ ip }}').attr("disabled", true);
+        } else {
+            $("#id_line_" + $("#id_ip_line").val()).val('').attr("disabled", false);
+        }
+    });
+    $("#id_show_mode:checkbox ").change(function () {
+        console.log($(this).prop('checked'));
+        if ($(this).prop('checked')) {
+            $("#id_line_" + $("#id_mode_line").val()).val('Mode: Traffic/Music').attr("disabled", true);
+        } else {
+            $("#id_line_" + $("#id_mode_line").val()).val('').attr("disabled", false);
+        }
+    });
+});
 </script>
 {% endblock script %}

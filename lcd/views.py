@@ -26,6 +26,7 @@ class LcdCreate(CreateView):
     def get_context_data(self, **kwargs):
         context = super(LcdCreate, self).get_context_data(**kwargs)
         context['title'] = 'Create lcd'
+        context['ip'] = get_ip_address()
         return context
 
     def form_valid(self, form):
@@ -55,6 +56,7 @@ class LcdUpdate(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(LcdUpdate, self).get_context_data(**kwargs)
         context['title'] = 'Update lcd'
+        context['ip'] = get_ip_address()
         return context
 
     def form_valid(self, form):
@@ -68,9 +70,9 @@ class LcdUpdate(UpdateView):
                 self.object.line_2 = "IP Address: " + get_ip_address()
         if form.cleaned_data['show_mode']:
             if form.cleaned_data['mode_line'] == 1:
-                self.object.line_1 = "Mode"
+                self.object.line_1 = "Mode: Traffic/Music"
             else:
-                self.object.line_2 = "Mode"
+                self.object.line_2 = "Mode: Traffic/Music"
         self.object.save()
         return super(LcdUpdate, self).form_valid(form)
 
