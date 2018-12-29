@@ -257,6 +257,7 @@ class Display(object):
             light.off()
         sleep(1)
         self.reset_timings()
+        self.sound_on_time = 0.0
 
     def all_lights_off(self):
         for light in self.lights:
@@ -287,10 +288,13 @@ class Display(object):
             self.reset_timings()
 
     def music_cycle(self):
-        if GPIO.input(self.switches['music']['pin']) == self.switches['music']['pull']:
-            self.all_lights_on()
-        else:
-            self.all_lights_off()
+        now = time()
+        if now - self.sound_on_time > 0.010:
+            if GPIO.input(self.switches['music']['pin']) == self.switches['music']['pull']:
+                self.all_lights_on()
+                self.sound_on_time = now
+            else:
+                self.all_lights_off()
 
     def db_test(self):
         now = time()

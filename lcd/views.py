@@ -2,7 +2,19 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from lcd.models import Lcd
 from django.urls import reverse_lazy
-from controller.main import get_ip_address
+import socket
+
+
+# This can be imported from controller.main, but I decided to hard copy it here so it won't cause conflicts
+# if someone wants to use a database other than postgresql, although that means that the database will need to be
+# changed in main.py as well.
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Change port to a port that you do not have in use.
+    s.connect(("8.8.8.8", 8080))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
 
 
 class Index(ListView):
