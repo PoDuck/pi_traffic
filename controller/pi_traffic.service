@@ -3,7 +3,7 @@ Description=Pi Traffic
 After=network.target
 
 [Service]
-ExecStart=/home/pi/.virtualenvs/traffic_daemon/bin/python -u /home/pi/pi_traffic/controller/main.py
+ExecStart=/home/pi/.virtualenvs/pi_traffic/bin/python -u /home/pi/pi_traffic/controller/main.py
 WorkingDirectory=/home/pi/pi_traffic
 StandardOutput=inherit
 StandardError=inherit
