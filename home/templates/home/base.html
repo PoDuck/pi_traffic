@@ -4,16 +4,15 @@
 <head>
     <!-- Required meta tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static '@fortawesome/fontawesome-free/css/all.min.css' %}">
     <meta charset="UTF-8">
     <title>Raspberry Pi Traffic Control - {{ title }}</title>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="#"><i class="fas fa-road"></i> <strong>Pi Traffic</strong></a>
+    <a class="navbar-brand" href="{% url 'home:index' %}"><i class="fas fa-road"></i> <strong>Pi Traffic</strong></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -38,8 +37,7 @@
     {% block body %}{% endblock body %}
 </div>
 <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
-<script src="{% static 'popper.js/dist/popper.min.js' %}"></script>
-<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
 {% block script %}
 {% endblock script %}
 </body>
