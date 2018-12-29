@@ -168,3 +168,4 @@ venv.bak/
 
 /.idea/
 /node_modules/
+/pi_traffic/local_settings.py

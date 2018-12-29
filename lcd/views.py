@@ -44,6 +44,9 @@ class LcdCreate(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         if form.cleaned_data['active']:
+            existing = Lcd.objects.all()
+            if existing.first():
+                Lcd.objects.exclude(pk=self.kwargs['pk']).update(active=False)
             Lcd.objects.exclude(pk=self.kwargs['pk']).update(active=False)
         if form.cleaned_data['show_ip']:
             if form.cleaned_data['ip_line'] == 1:
