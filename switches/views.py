@@ -13,13 +13,15 @@ class SwitchIndex(ListView):
         context = super(SwitchIndex, self).get_context_data(**kwargs)
         context['page'] = 'switches'
         context['title'] = 'Switch Index'
+        if Switch.objects.count() >= 2:
+            context['add_disabled'] = True
         return context
 
 
 class SwitchCreate(CreateView):
     model = Switch
     template_name = 'switches/create.html'
-    fields = ['name', 'pin', 'pull', 'on_name', 'off_name']
+    fields = ['name', 'pin', 'pull', 'on_name', 'off_name', 'switch_type']
     success_url = reverse_lazy('switches:index')
 
     def get_context_data(self, **kwargs):
@@ -27,17 +29,33 @@ class SwitchCreate(CreateView):
         context['title'] = 'Create Switch'
         return context
 
+    def form_valid(self, form):
+        if form.cleaned_data['switch_type']:
+            other_switch = 0
+        else:
+            other_switch = 1
+        switches = Switch.objects.all().update(switch_type=other_switch)
+        return super(SwitchCreate, self).form_valid(form)
+
 
 class SwitchUpdate(UpdateView):
     model = Switch
     template_name = 'switches/update.html'
-    fields = ['name', 'pin', 'pull', 'on_name', 'off_name']
+    fields = ['name', 'pin', 'pull', 'on_name', 'off_name', 'switch_type']
     success_url = reverse_lazy('switches:index')
 
     def get_context_data(self, **kwargs):
         context = super(SwitchUpdate, self).get_context_data(**kwargs)
         context['title'] = 'Update Switch'
         return context
+
+    def form_valid(self, form):
+        if form.cleaned_data['switch_type']:
+            other_switch = 0
+        else:
+            other_switch = 1
+        Switch.objects.all().exclude(pk=self.kwargs['pk']).update(switch_type=other_switch)
+        return super(SwitchUpdate, self).form_valid(form)
 
 
 class SwitchDelete(DeleteView):

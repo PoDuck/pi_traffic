@@ -6,7 +6,15 @@ LINE_CHOICES = [
 ]
 
 
-class Lcd(models.Model):
+class TrackedModel(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Lcd(TrackedModel):
     active = models.BooleanField(verbose_name='Make active screen', default=True, help_text="When checked, this will be the only active LCD.")
     line_1 = models.CharField(max_length=255, verbose_name='Line 1 text', blank=True, null=False, help_text="This text will be displayed as long as you don't override it with an IP address or mode below.")
     line_2 = models.CharField(max_length=255, verbose_name='Line 2 text', blank=True, null=False, help_text="This text will be displayed as long as you don't override it with an IP address or mode below.")

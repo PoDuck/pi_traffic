@@ -1,0 +1,1 @@
+[{"model": "lcd.lcd", "pk": 3, "fields": {"active": true, "line_1": "Hello world", "line_2": "Mode: Traffic/Music", "show_ip": false, "ip_line": 1, "show_mode": true, "mode_line": 2, "power_switch_pin": 22}}]

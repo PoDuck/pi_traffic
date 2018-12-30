@@ -1,0 +1,1 @@
+[{"model": "switches.switch", "pk": 1, "fields": {"name": "mode", "pin": 23, "pull": true, "on_name": "Music", "off_name": "Traffic"}}, {"model": "switches.switch", "pk": 2, "fields": {"name": "music", "pin": 24, "pull": true, "on_name": "Music", "off_name": "Silence"}}]

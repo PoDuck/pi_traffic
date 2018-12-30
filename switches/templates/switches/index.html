@@ -12,6 +12,7 @@
                 <th>Pull Direction when on</th>
                 <th>On Name</th>
                 <th>Off Name</th>
+                <th>Switch Type</th>
                 <th>&nbsp;</th>
             </thead>
             <tbody>
@@ -23,6 +24,7 @@
                     <td>{% if switch.pull %}HIGH{% else %}LOW{% endif %}</td>
                     <td>{{ switch.on_name }}</td>
                     <td>{{ switch.off_name }}</td>
+                    <td>{{ switch.get_switch_type_display }}</td>
                     <td>
                         <button type="button" class="btn btn-primary"
                                 onclick="window.location='{% url 'switches:update' switch.pk %}';">Update
@@ -35,7 +37,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <button type="button" class="btn btn-info" onclick="window.location='{% url 'switches:create' %}';">Add New
+        <button type="button" class="btn btn-info" onclick="window.location='{% url 'switches:create' %}';"{% if add_disabled %} disabled{% endif %}>Add New
         </button>
     </div>
 {% endblock body %}
